@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "../oxygen_esp01"
+		},
+		{
+			"name": "hardware_serial_esp01",
+			"path": "."
+		}
+	],
+	"settings": {}
+}
