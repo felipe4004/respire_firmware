@@ -1,0 +1,64 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Oxygen</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+    #file-input,input{
+        width:100%;height:44px;border-radius:4px;margin:10px auto;font-size:15px
+        }
+    input{
+        background:#f1f1f1;border:0;padding:0px; text-align: center;
+        }
+    body{
+        background:#5F9EA0;font-family:sans-serif;font-size:14px;color:#777
+        }
+    #file-input{
+        padding:0;border:1px solid #ddd;line-height:44px;text-align:left;display:block;cursor:pointer
+        }
+    #bar,#prgbar{
+        background-color:#f1f1f1;border-radius:10px}#bar{background-color:#3498db;width:0%;height:10px
+        }
+    form{
+        background:#fff;max-width:258px;margin:75px auto;padding:50px;border-radius:3px;text-align:center
+        }
+    .btn{
+        background:#5F9EA0;color:#fff;cursor:pointer
+        }
+    h2{
+        font-size: 16px; border: 0; font-family: sans-serif
+    }
+    h1{
+        font-size: 3vw; border: 0; font-family: sans-serif; 
+    }
+</style>
+</head>
+<body>
+
+    <form name=loginForm>
+        <h2>Estação de atualização OTA</h2>
+        <input name=userid placeholder='User ID'> 
+        <input name=pwd placeholder=Password type=Password> 
+        <input type=submit onclick=check(this.form) class=btn value=Login>
+    </form>
+    
+    <form method='POST' action='/wifi_manager'>
+            <h2>Ou insira credenciais do WiFi</h2>
+            <input type='text' name='SSID_wifi' placeholder='SSID'><br>
+            <input type='password' name='pass_wifi' placeholder='Senha'>
+            <input type='submit' value='Cadastrar' class=btn>
+    </form>
+    <script>
+      function check(form) {
+      if(form.userid.value=='admin' && form.pwd.value=='pass') //Autheticate user before OTA Update
+      {
+          window.open('/serverIndex')}
+      else
+      {
+          alert('Error Password or Username')}
+      }
+    </script>
+
+</body>
+</html>
