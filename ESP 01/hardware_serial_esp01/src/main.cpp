@@ -23,16 +23,25 @@ const char * ssid = "Bifrost";    //O SSID da rede a qual deseja conectar-se
 const char * password = "089083jkb139293709b1393401023fe"; //A senha da respectiva rede
 unsigned long current_time = 0, previous_time = 100;
 
-union dados_recebidos{
-  struct{
-  short int PEEP, PEEPmin, PEEPmax;
-  short int volcorr, volcorrmax, volcorrmin;
-  short int fluxo, fluxo_max, fluxo_min;
-  short int id;
-  };
-  int receive[5];
-}data;
+// union dados_recebidos{
+//   struct{
+//   short int PEEP, PEEPmin, PEEPmax;
+//   short int volcorr, volcorrmax, volcorrmin;
+//   short int fluxo, fluxo_max, fluxo_min;
+//   short int id;
+//   };
+//   short int receive[10] ={1,2,3,4,5,6,7,8,9,10};
+// } data;
+union dados{
 
+struct {
+  char PEEP[4], PEEPmin[4], PEEPmax[4];
+  char volcorr[4], volcorrmax[4], volcorrmin[4];
+  char fluxo[4], fluxo_max[4], fluxo_min[4];
+  char id[4];
+  }; 
+  char recebido[41];
+}data;
 
 
 
@@ -52,22 +61,16 @@ void setup() {
 }
 
 void loop() {
-  size_t i=0;
   server.handleClient();
   MDNS.update();
   current_time = millis();
-  if((current_time- previous_time) >= 1000){
-    Serial.write(i);
-    previous_time = current_time;
-  }
-  if(Serial.available()>5){
-    delayMicroseconds(50);
-    for(i = 0; i <= 5; i++)
-      data.receive[i] = Serial.read();
-    
-  }
-    
 
+  if((current_time- previous_time) >= 2000){
+    previous_time = current_time;
+    if(Serial.available()>0){
+      Serial.readBytes(data.recebido, 40);
+    } 
+  }
 }
 
 
@@ -78,11 +81,11 @@ void wifi_setup(){
   Serial.println("......");
 
   while(WiFi.status() != WL_CONNECTED) {
+    delay(1);
     if(WiFi.status() == WL_CONNECT_FAILED){
       Serial.println("Falha na conexão!\n");
       break;
     }
-    delay(2);
   }
 
 }
@@ -105,29 +108,32 @@ void server_initialize(){
 void handleroot(){
   char str[1024];
   char aux[50];
+
+
   sprintf(str, "<p1>Numeros escritos pela serial:</p1>");
-  sprintf(aux, "<p2>PEEP: %hu</p2>", data.PEEP);
+  sprintf(aux, "<p2>PEEP: %s</p2>", data.PEEP);
   strcat(str, aux);
-  sprintf(aux, "<p2>PEEPmin: %hu</p2>", data.PEEPmin);
+  sprintf(aux, "<p2>PEEPmin: %s</p2>", data.PEEPmin);
   strcat(str, aux);
-  sprintf(aux, "<p2>PEEPmax: %hu</p2>", data.PEEPmax);
+  sprintf(aux, "<p2>PEEPmax: %s</p2>", data.PEEPmax);
   strcat(str, aux);
-  sprintf(aux, "<p2>volcorr: %hu</p2>", data.volcorr);
+  sprintf(aux, "<p2>volcorr: %s</p2>", data.volcorr);
   strcat(str, aux);
-  sprintf(aux, "<p2>volcorrmax: %hu</p2>", data.volcorrmax);
+  sprintf(aux, "<p2>volcorrmax: %s</p2>", data.volcorrmax);
   strcat(str, aux);
-  sprintf(aux, "<p2>volcorrmin: %hu</p2>", data.volcorrmin);
+  sprintf(aux, "<p2>volcorrmin: %s</p2>", data.volcorrmin);
   strcat(str, aux);
-  sprintf(aux, "<p2>fluxo: %hu</p2>", data.fluxo);
+  sprintf(aux, "<p2>fluxo: %s</p2>", data.fluxo);
   strcat(str, aux);
-  sprintf(aux, "<p2>fluxo_max: %hu</p2>", data.fluxo_max);
+  sprintf(aux, "<p2>fluxo_max: %s</p2>", data.fluxo_max);
   strcat(str, aux);
-  sprintf(aux, "<p2>fluxo_min: %hu</p2>", data.fluxo_min);
+  sprintf(aux, "<p2>fluxo_min: %s</p2>", data.fluxo_min);
   strcat(str, aux);
-  sprintf(aux, "<p2>id: %hu</p2>", data.id);
+  sprintf(aux, "<p2>id: %s</p2>", data.id);
   strcat(str, aux);
-  
+  Serial.println(str);
   server.send(200, "text/html", str);
+  Serial.println(Serial.getRxBufferSize());
 }
 
 void handlenotfound(){
