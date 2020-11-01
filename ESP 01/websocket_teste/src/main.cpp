@@ -22,10 +22,10 @@ void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
 		}
 			break;
 		case WStype_TEXT:
-			Serial.printf("[WSc] get text: %s\n", payload);
+			//Serial.printf("[WSc] get text: %s\n", payload);
 
 			// send message to server
-			// webSocket.sendTXT("message here");
+			webSocket.sendTXT("message here");
 			break;
 		case WStype_BIN:
 			Serial.printf("[WSc] get binary length: %u\n", length);
@@ -73,7 +73,7 @@ void setup() {
 	}
 
 	// server address, port and URL
-	webSocket.begin("177.72.63.147", 80, "/");
+	webSocket.begin("192.168.1.5", 65432, "/");
 
 	// event handler
 	webSocket.onEvent(webSocketEvent);
@@ -94,4 +94,5 @@ void setup() {
 
 void loop() {
 	webSocket.loop();
+	webSocket.sendTXT("message here");
 }
