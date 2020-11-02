@@ -11,6 +11,13 @@
 #define DIR 10
 //#define EN    //Nao sei o que significa esse pino 
 
+volatile uint8_t stateMotor = 0;
+
+#define FCOURSEMIN  4
+#define FCOURSEMAX  3
+
+
+
 
 /*--------------------LCD-----------------*/
 //Configuração de Pinagem, Enable, RW, RS, RESET
@@ -70,6 +77,8 @@ void u8g_frame(void);
 void u8g_string(void);
 void draw(void);
 void measureFunction(void);
+void fcourse(void);
+void serialSend();
 
 
 #endif

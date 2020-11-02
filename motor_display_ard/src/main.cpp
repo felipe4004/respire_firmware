@@ -17,6 +17,10 @@ void setup(void) {
   OCR1A = 5;                      // time = 5*64*(1/16000000) = 20 us   
   TIMSK1 = bit (OCIE1A);              // interrupt on Compare A Match
 
+    // Interrupcao externa fim de curso
+  attachInterrupt (digitalPinToInterrupt (FCOURSEMIN), fcourse, RISING);
+  attachInterrupt (digitalPinToInterrupt (FCOURSEMAX), fcourse, RISING);
+
 
   pinMode (PUL, OUTPUT);
   pinMode (DIR, OUTPUT);
@@ -24,7 +28,7 @@ void setup(void) {
   //digitalWrite(EN,HIGH);
 
 
-  Serial.begin(9600);
+  Serial.begin(115200);
 
     // put your setup code here, to run once:
 }
@@ -67,7 +71,7 @@ ISR(TIMER0_COMPA_vect){
 ISR(TIMER1_COMPA_vect){
   static unsigned int steps=0;
   static unsigned int interval=0;
-  static int stateMotor = 0;
+
 
   switch(stateMotor){
     case(0):      //define a direcao
@@ -161,6 +165,23 @@ void measureFunction(void){
     }
     p_plot[i] = daq.pres;
     f_plot[i] = daq.flow;
+
+}
+
+void fcourse(){
+
+  if(digitalRead(FCOURSEMAX)){
+    stateMotor = 4;
+  }
+  else{
+    stateMotor = 0;
+  }
+}
+
+void serialSend(){
+
+  sprintf(str, ">%hi,0,0,0,0,0,%hi,0,0,0<;", daq.pres, daq.flow);
+  Serial.write(str);
 
 }
 
