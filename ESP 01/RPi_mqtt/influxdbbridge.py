@@ -13,8 +13,8 @@ INFLUXDB_DATABASE = 'respire_data'
 MQTT_ADDRESS = '192.168.1.5'
 MQTT_USER = 'felipemqtt'
 MQTT_PASSWORD = '12345'
-MQTT_TOPIC = 'home/+/+'
-MQTT_REGEX = 'home/([^/]+)/([^/]+)'
+MQTT_TOPIC = 'uti/+/+'
+MQTT_REGEX = 'uti/([^/]+)/([^/]+)'
 MQTT_CLIENT_ID = 'MQTTInfluxDBBridge'
 
 influxdb_client = InfluxDBClient(INFLUXDB_ADDRESS, 8086, INFLUXDB_USER, INFLUXDB_PASSWORD, None)

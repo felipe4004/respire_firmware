@@ -7,21 +7,11 @@
 
 
 #include <Arduino.h>
-#include <ESP8266WiFi.h>
-#include <ESP8266mDNS.h>
-#include <ESP8266WebServer.h>
-#include <WiFiClient.h>
 
-
-void wifi_setup();
-void mdns_setup();
 void handleroot();
-void handlenotfound();
-void server_initialize();
 
-const char * ssid = "Bifrost";    //O SSID da rede a qual deseja conectar-se
-const char * password = "089083jkb139293709b1393401023fe"; //A senha da respectiva rede
-unsigned long current_time = 0, previous_time = 100;
+char str[100] = {0};
+size_t tam_str;
 
 // union dados_recebidos{
 //   struct{
@@ -32,111 +22,177 @@ unsigned long current_time = 0, previous_time = 100;
 //   };
 //   short int receive[10] ={1,2,3,4,5,6,7,8,9,10};
 // } data;
-union dados{
 
-struct {
+struct dados{
   char PEEP[4], PEEPmin[4], PEEPmax[4];
   char volcorr[4], volcorrmax[4], volcorrmin[4];
   char fluxo[4], fluxo_max[4], fluxo_min[4];
   char id[4];
-  }; 
-  char recebido[41];
-}data;
+  }data; 
 
-
-
-
-ESP8266WebServer server(80);
 
 
 void setup() {
-  Serial.begin(4800);
+  Serial.begin(115200);
   delay(10);
-  Serial.println("\n");
 
-  wifi_setup();
-  mdns_setup();
-  server_initialize();
 
 }
 
 void loop() {
-  server.handleClient();
-  MDNS.update();
-  current_time = millis();
-
-  if((current_time- previous_time) >= 2000){
-    previous_time = current_time;
-    if(Serial.available()>0){
-      Serial.readBytes(data.recebido, 40);
-    } 
-  }
-}
-
-
-void wifi_setup(){
-  WiFi.begin(ssid, password);
-  Serial.println("Conectando ao ");
-  Serial.print(ssid);
-  Serial.println("......");
-
-  while(WiFi.status() != WL_CONNECTED) {
-    delay(1);
-    if(WiFi.status() == WL_CONNECT_FAILED){
-      Serial.println("Falha na conexão!\n");
-      break;
+  if(Serial.available()>0){
+    tam_str = Serial.readBytes(str, 100);
+    if(tam_str > 0){
+      Serial.print(" tamanho string recebida");
+      Serial.println(tam_str);
+      Serial.print("Conteudo:");
+      Serial.println(str);
+      handleroot();
     }
-  }
-
+      
+  } 
 }
 
-void mdns_setup() {
-  if (MDNS.begin("respireid")) {             
-    Serial.println("mDNS responder started");
-  } else {
-    Serial.println("Error setting up MDNS responder!");
-  }
-  
-}
 
-void server_initialize(){
-  server.on("/", HTTP_GET, handleroot);
-  server.begin();
-  MDNS.addService("http", "tcp", 80);
-}
+
 
 void handleroot(){
-  char str[1024];
-  char aux[50];
+  Serial.print(str[0]);
+  Serial.print(str[tam_str -2]);
+  if ((str[0] == '>') && (str[tam_str-2] == '<')){
+    for(size_t sel=0, j=0, i=1; i<tam_str ; i++){
+      Serial.print("valor de j:");
+      Serial.println(j);
+      switch(sel){
+        case(0):
+          if (str[i] == ','){
+            sel++;
+            data.PEEP[j] = '\0';
+            j=0;
+          }
+          else{
+            data.PEEP[j] = str[i];
+            j++;
+          }
+          break;
+        case(1):
+          if (str[i] == ','){
+            sel++;
+            data.PEEPmin[j] = '\0';
+            j=0;
+          }
+          else{
+            data.PEEPmin[j] = str[i];
+            j++;
+          }
+          break;
+        case(2):
+          if (str[i] == ','){
+            sel++;
+            data.PEEPmax[j] = '\0';
+            j=0;
+          }
+          else{
+            data.PEEPmax[j] = str[i];
+            j++;
+          }
+          break;
+        case(3):
+          if (str[i] == ','){
+            sel++;
+            data.volcorr[j] = '\0';
+            j=0;
+          }
+          else{
+            data.volcorr[j] = str[i];
+            j++;
+          }
+          break;
+        case(4):
+          if (str[i] == ','){
+            sel++;
+            data.volcorrmax[j] = '\0';
+            j=0;
+          }
+          else{
+            data.volcorrmax[j] = str[i];
+            j++;
+          }
+          break;
+        case(5):
+          if (str[i] == ','){
+            sel++;
+            data.volcorrmin[j] = '\0';
+            j=0;
+          }
+          else{
+            data.volcorrmin[j] = str[i];
+            j++;
+          }
+          break;
+        case(6):
+          if (str[i] == ','){
+            sel++;
+            data.fluxo[j] = '\0';
+            j=0;
+          }
+          else{
+            data.fluxo[j] = str[i];
+            j++;
+          }
+          break;
+        case(7):
+          if (str[i] == ','){
+            sel++;
+            data.fluxo_max[j] = '\0';
+            j=0;
+          }
+          else{
+            data.fluxo_max[j] = str[i];
+            j++;
+          }
+          break;
+        case(8):
+          if (str[i] == ','){
+            sel++;
+            data.fluxo_min[j] = '\0';
+            j=0;
+          }
+          else{
+            data.fluxo_min[j] = str[i];
+            j++;
+          }
+          break;
+        case(9):
+          if (str[i] == '<'){
+            sel++;
+            data.id[j] = '\0';
+            j=0;
+          }
+          else{
+            data.id[j] = str[i];
+            j++;
+          }
+          break;
+        default:
+          break;
+      }
+    }
+    Serial.println("Copia dos dados recebidos:");
 
+    Serial.println(data.PEEP);
+    Serial.println(data.PEEPmin);
+    Serial.println(data.PEEPmax);
+    Serial.println(data.volcorr);
+    Serial.println(data.volcorrmax);
+    Serial.println(data.volcorrmin);
+    Serial.println(data.fluxo);
+    Serial.println(data.fluxo_max);
+    Serial.println(data.fluxo_min);
+    Serial.println(data.id);
+  }
 
-  sprintf(str, "<p1>Numeros escritos pela serial:</p1>");
-  sprintf(aux, "<p2>PEEP: %s</p2>", data.PEEP);
-  strcat(str, aux);
-  sprintf(aux, "<p2>PEEPmin: %s</p2>", data.PEEPmin);
-  strcat(str, aux);
-  sprintf(aux, "<p2>PEEPmax: %s</p2>", data.PEEPmax);
-  strcat(str, aux);
-  sprintf(aux, "<p2>volcorr: %s</p2>", data.volcorr);
-  strcat(str, aux);
-  sprintf(aux, "<p2>volcorrmax: %s</p2>", data.volcorrmax);
-  strcat(str, aux);
-  sprintf(aux, "<p2>volcorrmin: %s</p2>", data.volcorrmin);
-  strcat(str, aux);
-  sprintf(aux, "<p2>fluxo: %s</p2>", data.fluxo);
-  strcat(str, aux);
-  sprintf(aux, "<p2>fluxo_max: %s</p2>", data.fluxo_max);
-  strcat(str, aux);
-  sprintf(aux, "<p2>fluxo_min: %s</p2>", data.fluxo_min);
-  strcat(str, aux);
-  sprintf(aux, "<p2>id: %s</p2>", data.id);
-  strcat(str, aux);
-  Serial.println(str);
-  server.send(200, "text/html", str);
-  Serial.println(Serial.getRxBufferSize());
-}
+  
 
-void handlenotfound(){
- server.send(404, "text/plain", "404: Not found");
 }
 
