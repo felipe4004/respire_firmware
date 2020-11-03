@@ -5,12 +5,12 @@ import paho.mqtt.client as mqtt
 from influxdb import InfluxDBClient
 
 
-INFLUXDB_ADDRESS = '192.168.1.5'
+INFLUXDB_ADDRESS = '192.168.0.102'
 INFLUXDB_USER = 'felipemqtt'
 INFLUXDB_PASSWORD = '12345'
 INFLUXDB_DATABASE = 'respire_data'
 
-MQTT_ADDRESS = '192.168.1.5'
+MQTT_ADDRESS = '192.168.0.102'
 MQTT_USER = 'felipemqtt'
 MQTT_PASSWORD = '12345'
 MQTT_TOPIC = 'uti/+/+'

@@ -3,6 +3,9 @@
 
 U8GLIB_ST7920_128X64_1X u8g(13, 11, A1);
 
+SoftwareSerial serialsoft(4, A4); //rx, tx soft
+
+
 
 void setup(void) {
   // Setup Timer 0
@@ -29,6 +32,7 @@ void setup(void) {
 
 
   Serial.begin(115200);
+  serialsoft.begin(115200);
 
     // put your setup code here, to run once:
 }
@@ -36,13 +40,24 @@ void setup(void) {
 
 void loop(void) {
   
+  int i=0;
+  
   u8g.firstPage(); //Manutencao da figura no display
+  measureFunction(); //Funcao para a medicao ADC
+
 
   if(lcdFlag){
-
-    measureFunction(); //Funcao para a medicao ADC
-
+    
     //Escrita no display
+
+
+    for(i=0; i < 63; i++){
+      p_plot[i] = p_plot[i+1];
+      f_plot[i] = f_plot[i+1];
+    }
+    p_plot[i] = (int)(64.0-(53.0*daq.pres/500.0));
+    f_plot[i] = (int) (64.0-(53.0*daq.flow/750.0));
+
   do {
     draw();
   } while( u8g.nextPage() );
@@ -69,43 +84,73 @@ ISR(TIMER0_COMPA_vect){
  *  Timer1 ISR
  */
 ISR(TIMER1_COMPA_vect){
-  static unsigned int steps=0;
   static unsigned int interval=0;
+  static unsigned int ramp = 300;
+  static unsigned int countRamp=0;
+
+  serialSend();
 
 
   switch(stateMotor){
     case(0):      //define a direcao
-      steps = 0;
+      daq.step = 0;
       interval = 0;
       stateMotor = 1;
+      countRamp=0;
+      ramp=300;
+
       digitalWrite(DIR, LOW);
     case(1):      //coloca o pulso em nivel alto e aguarda 20us
       digitalWrite(PUL, HIGH);
       stateMotor = 2;
       break;
     case(2):      //coloca em nivel baixo e verifica se ja chegaram nas 20000 contagens
-      digitalWrite(PUL,LOW);
-      steps++;
-      steps < 20000 ? stateMotor=1 : stateMotor = 3;
-      break;
+      if(countRamp < ramp){
+        countRamp++;
+        break;
+      }
+      else{
+        digitalWrite(PUL,LOW);
+        daq.step++;
+        ramp--;
+        daq.step < 30000 ? stateMotor=1 : stateMotor = 3;
+        break;
+      }
+
     case(3):      //intervalo de 10 ms
       interval++;
-      interval < 250 ? stateMotor = 3 : stateMotor = 4;
+      interval < 500 ? stateMotor = 3 : stateMotor = 4;
       break;
     case(4):      //define a direcao
       digitalWrite(DIR,HIGH);
-      steps = 0;
+      daq.step = 0;
       interval = 0;
       stateMotor = 5;
+      countRamp = 0;
+      ramp = 300;
     case(5):      //coloca o pulso em nivel alto e aguarda 20us
       digitalWrite(PUL, HIGH);
       stateMotor = 6;
       break;
     case(6):      //coloca o pulso em nivel baixo e verifica a condicao
-      digitalWrite(PUL,LOW);
-      steps++;
-      steps < 20000 ? stateMotor=5 : stateMotor = 0; //retorna para o se ja for atingido o valor de 20000
+        if(countRamp < ramp){
+        countRamp++;
+        break;
+      }
+      else{
+        digitalWrite(PUL,LOW);
+        daq.step++;
+        ramp--;
+        daq.step < 30000 ? stateMotor=5 : stateMotor = 7; //vai para o 7 se ja for atingido o valor de 20000
+        break;
+      }
       break;
+    case(7):
+      interval++;
+      interval < 500 ? stateMotor = 7 : stateMotor = 0;
+    default:
+      break;
+
       
   }
 
@@ -153,18 +198,8 @@ void draw(void) {
 
 
 void measureFunction(void){
-    int i = 0;
-    daq.flow = (int) (64.0-(53.0*analogRead(A5)/750.0));
-    daq.pres = (int) (64.0-(53.0*analogRead(A7)/500.0));
-
-    // insercao de um novo valor no vetor
-
-    for(i=0; i < 63; i++){
-      p_plot[i] = p_plot[i+1];
-      f_plot[i] = f_plot[i+1];
-    }
-    p_plot[i] = daq.pres;
-    f_plot[i] = daq.flow;
+    daq.flow = analogRead(A5);
+    daq.pres = analogRead(A7);
 
 }
 
@@ -180,8 +215,8 @@ void fcourse(){
 
 void serialSend(){
 
-  sprintf(str, ">%hi,0,0,0,0,0,%hi,0,0,0<;", daq.pres, daq.flow);
-  Serial.write(str);
+  sprintf(str, ">%hi,%hi,%d<;", daq.pres, daq.flow, daq.step);
+  serialsoft.write(str);
 
 }
 

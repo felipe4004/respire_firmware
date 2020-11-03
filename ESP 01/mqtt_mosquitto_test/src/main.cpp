@@ -6,13 +6,14 @@
 //SoftwareSerial softserial(0,2); // RX, TX // Make pin 2 on Arduino the rduino’s RX line.
 
 // WiFi
-const char* ssid = "Bifrost";                 
-const char* wifi_password = "089083jkb139293709b1393401023fe"; 
+const char* ssid = "LEIA";                 
+const char* wifi_password = "L3!@2017"; 
 
 // MQTT
-const char* mqtt_server = "192.168.1.5";  // IP do MQTT broker
+const char* mqtt_server = "192.168.0.102";  // IP do MQTT broker
 const char* pressure_topic = "uti/001/pressure";
 const char* flow_topic = "uti/001/flow";
+const char* step_topic = "uti/001/step";
 const char* mqtt_username = "felipemqtt"; // MQTT username
 const char* mqtt_password = "12345"; // MQTT password
 const char* clientID = "client_livingroom"; // MQTT client ID
@@ -22,10 +23,7 @@ size_t tam_str=0;
 //Dados 
 
 struct dados{
-  char pres[4], pres_min[4], pres_max[4];
-  char volcorr[4], volcorrmax[4], volcorrmin[4];
-  char fluxo[4], fluxo_max[4], fluxo_min[4];
-  char id[4];
+  char pres[4], fluxo[4], step[8];
   }data; 
 
 
@@ -99,61 +97,6 @@ void trans_data(void) {
         case(1):
           if (str[i] == ','){
             sel++;
-            data.pres_min[j] = '\0';
-            j=0;
-          }
-          else{
-            data.pres_min[j] = str[i];
-            j++;
-          }
-          break;
-        case(2):
-          if (str[i] == ','){
-            sel++;
-            data.pres_max[j] = '\0';
-            j=0;
-          }
-          else{
-            data.pres_max[j] = str[i];
-            j++;
-          }
-          break;
-        case(3):
-          if (str[i] == ','){
-            sel++;
-            data.volcorr[j] = '\0';
-            j=0;
-          }
-          else{
-            data.volcorr[j] = str[i];
-            j++;
-          }
-          break;
-        case(4):
-          if (str[i] == ','){
-            sel++;
-            data.volcorrmax[j] = '\0';
-            j=0;
-          }
-          else{
-            data.volcorrmax[j] = str[i];
-            j++;
-          }
-          break;
-        case(5):
-          if (str[i] == ','){
-            sel++;
-            data.volcorrmin[j] = '\0';
-            j=0;
-          }
-          else{
-            data.volcorrmin[j] = str[i];
-            j++;
-          }
-          break;
-        case(6):
-          if (str[i] == ','){
-            sel++;
             data.fluxo[j] = '\0';
             j=0;
           }
@@ -162,36 +105,14 @@ void trans_data(void) {
             j++;
           }
           break;
-        case(7):
-          if (str[i] == ','){
-            sel++;
-            data.fluxo_max[j] = '\0';
-            j=0;
-          }
-          else{
-            data.fluxo_max[j] = str[i];
-            j++;
-          }
-          break;
-        case(8):
-          if (str[i] == ','){
-            sel++;
-            data.fluxo_min[j] = '\0';
-            j=0;
-          }
-          else{
-            data.fluxo_min[j] = str[i];
-            j++;
-          }
-          break;
-        case(9):
+        case(2):
           if (str[i] == '<'){
             sel++;
-            data.id[j] = '\0';
+            data.step[j] = '\0';
             j=0;
           }
           else{
-            data.id[j] = str[i];
+            data.step[j] = str[i];
             j++;
           }
           break;
@@ -239,6 +160,15 @@ void mqtt_publish(){
     //Serial.println("Falha ao enviar fluxo. Reconectando ao broker e tentando novamente");
     client.connect(clientID, mqtt_username, mqtt_password);
     client.publish(flow_topic, String(data.fluxo).c_str());
+  }
+
+  if (client.publish(step_topic, String(data.step).c_str())) {
+    //Serial.println("fluxo enviado!");
+  }
+  else {
+    //Serial.println("Falha ao enviar fluxo. Reconectando ao broker e tentando novamente");
+    client.connect(clientID, mqtt_username, mqtt_password);
+    client.publish(step_topic, String(data.step).c_str());
   }
 
 }

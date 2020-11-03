@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include <U8glib.h>
+#include <SoftwareSerial.h>
 
 
 /*-------------------MOTOR------------------*/
@@ -13,7 +14,8 @@
 
 volatile uint8_t stateMotor = 0;
 
-#define FCOURSEMIN  4
+
+#define FCOURSEMIN  2
 #define FCOURSEMAX  3
 
 
@@ -59,7 +61,7 @@ struct daq_type {
     int           pres;
     int           flow;
     byte          vBat;
-    int           temp;
+    volatile unsigned int  step;
     int           volCorr;
     unsigned int  volMinu;
     int           freq;
