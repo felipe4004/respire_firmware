@@ -24,6 +24,10 @@ void setup(void) {
   attachInterrupt (digitalPinToInterrupt (FCOURSEMIN), fcourse, RISING);
   attachInterrupt (digitalPinToInterrupt (FCOURSEMAX), fcourse, RISING);
 
+  pinMode (DT, INPUT);
+  pinMode (CLK, INPUT);
+  pinMode (SW, INPUT);
+
 
   pinMode (PUL, OUTPUT);
   pinMode (DIR, OUTPUT);
@@ -41,9 +45,10 @@ void setup(void) {
 void loop(void) {
   
   int i=0;
-  
+
   u8g.firstPage(); //Manutencao da figura no display
   measureFunction(); //Funcao para a medicao ADC
+  serialSend();
 
 
   if(lcdFlag){
@@ -72,11 +77,24 @@ void loop(void) {
 */
 ISR(TIMER0_COMPA_vect){
   static unsigned int timeCount=0;
+  static unsigned int lastRot=0;
   if (timeCount==UPDATE_LCD_TIME){
     lcdFlag=true;
     timeCount=0;
   }
   timeCount++;
+
+  if((PIND &= (PD5)) == B00100000){
+    sw=true;
+  }
+  else if(((PIND &= (bit(PIND6))|(bit(PIND7))) == B1000000) && (lastRot == B00000000)){
+    selection++;
+  }
+  else if(((PIND &= (bit(PIND6))|(bit(PIND7))) == B0100000) && (lastRot == B00000000)){
+    selection--;
+  }
+
+  lastRot = PIND;
 
 }
 
@@ -88,7 +106,6 @@ ISR(TIMER1_COMPA_vect){
   static unsigned int ramp = 300;
   static unsigned int countRamp=0;
 
-  serialSend();
 
 
   switch(stateMotor){

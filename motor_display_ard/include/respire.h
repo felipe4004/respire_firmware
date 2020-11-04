@@ -19,6 +19,15 @@ volatile uint8_t stateMotor = 0;
 #define FCOURSEMAX  3
 
 
+/*---------------------ROTARY ENCODER--------*/
+
+#define DT 6
+#define CLK 7
+#define SW 5
+
+bool sw=false;
+signed int selection=0;
+
 
 
 /*--------------------LCD-----------------*/
