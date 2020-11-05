@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include <U8glib.h>
+#include <SoftwareSerial.h>
 
 
 /*-------------------MOTOR------------------*/
@@ -11,6 +12,25 @@
 #define DIR 10
 //#define EN    //Nao sei o que significa esse pino 
 
+volatile uint8_t stateMotor = 0;
+
+
+#define FCOURSEMIN  2
+#define FCOURSEMAX  3
+
+
+/*---------------------ROTARY ENCODER--------*/
+
+#define DT 6
+#define CLK 7
+#define SW 5
+
+bool sw=false;
+signed int selection=0;
+
+bool configFlag = true;
+
+
 
 /*--------------------LCD-----------------*/
 //Configuração de Pinagem, Enable, RW, RS, RESET
@@ -18,6 +38,8 @@
 
 
 #define UPDATE_LCD_TIME 40
+
+uint8_t selConfig=0;
 
 
 //Declaracao das variaveis
@@ -52,7 +74,7 @@ struct daq_type {
     int           pres;
     int           flow;
     byte          vBat;
-    int           temp;
+    volatile unsigned int  step;
     int           volCorr;
     unsigned int  volMinu;
     int           freq;
@@ -70,6 +92,15 @@ void u8g_frame(void);
 void u8g_string(void);
 void draw(void);
 void measureFunction(void);
+void fcourse(void);
+void serialSend();
+void drawConfig(void);
+void drawFrameConfig(void);
+void drawStringsConfig(void);
+void confVol(const char *selection);
+void confPres(const char *selection);
+void confFr(const char *selection);
+
 
 
 #endif
