@@ -43,31 +43,45 @@ void setup(void) {
 
 
 void loop(void) {
-  
-  int i=0;
+
+  if(configFlag == true){
+    
+    u8g.firstPage();
+
+    //tela de configuracoes
+
+    do{
+      drawConfig();
+    }while(u8g.nextPage());
+  }
+
+  else{ 
+    int i=0;
 
   u8g.firstPage(); //Manutencao da figura no display
   measureFunction(); //Funcao para a medicao ADC
   serialSend();
 
 
-  if(lcdFlag){
-    
-    //Escrita no display
+    if(lcdFlag){
+      
+      //Escrita no display
 
 
-    for(i=0; i < 63; i++){
-      p_plot[i] = p_plot[i+1];
-      f_plot[i] = f_plot[i+1];
+      for(i=0; i < 63; i++){
+        p_plot[i] = p_plot[i+1];
+        f_plot[i] = f_plot[i+1];
+      }
+      p_plot[i] = (int)(64.0-(53.0*daq.pres/1023.0));
+      f_plot[i] = (int) (64.0-(53.0*daq.flow/1023.0));
+
+      do {
+        draw();
+      } while( u8g.nextPage() );
+      lcdFlag = false;
     }
-    p_plot[i] = (int)(64.0-(53.0*daq.pres/500.0));
-    f_plot[i] = (int) (64.0-(53.0*daq.flow/750.0));
-
-  do {
-    draw();
-  } while( u8g.nextPage() );
-  lcdFlag = false;
   }
+  
 
 }
 
@@ -77,24 +91,28 @@ void loop(void) {
 */
 ISR(TIMER0_COMPA_vect){
   static unsigned int timeCount=0;
-  static unsigned int lastRot=0;
-  if (timeCount==UPDATE_LCD_TIME){
+  static int lastCLK;
+  static int n;
+/*   static unsigned int lastRot=0;
+ */  if (timeCount==UPDATE_LCD_TIME){
     lcdFlag=true;
     timeCount=0;
   }
   timeCount++;
 
-  if((PIND &= (PD5)) == B00100000){
-    sw=true;
-  }
-  else if(((PIND &= (bit(PIND6))|(bit(PIND7))) == B1000000) && (lastRot == B00000000)){
-    selection++;
-  }
-  else if(((PIND &= (bit(PIND6))|(bit(PIND7))) == B0100000) && (lastRot == B00000000)){
-    selection--;
-  }
 
-  lastRot = PIND;
+  n = digitalRead(CLK);
+  if ((lastCLK == LOW) && (n == HIGH)) {
+    if (digitalRead(DT) == LOW) {
+      selection--;
+    } else {
+      selection++;
+    }
+    Serial.print (selection);
+    Serial.println ("/");
+  }
+  lastCLK = n;
+
 
 }
 
@@ -235,6 +253,100 @@ void serialSend(){
   sprintf(str, ">%hi,%hi,%d<;", daq.pres, daq.flow, daq.step);
   serialsoft.write(str);
 
+}
+
+void drawConfig(void){
+  char selArray[10];
+  sprintf(selArray,"%d", selection);
+  const char *aux = selArray;
+
+  u8g_prepare();
+
+  drawFrameConfig();
+  drawStringsConfig();
+
+  switch (selConfig)
+  {
+  case 0:
+    if(SW == 0){
+      selConfig++;
+      selection = 0;
+      break;
+    }
+    else{
+      confVol(aux);
+      break;
+    }
+
+  case 1:
+    if(SW == 0){
+      selConfig++;
+      selection = 0;
+      break;
+    }
+    else{
+      confPres(aux);
+      break;
+    }
+  case 2:
+    if(SW == 0){
+      selConfig++;
+      selection = 0;
+      configFlag = false;
+      break;
+    }
+    else{
+      confFr(aux);
+      break;
+    }
+
+  default:
+    selConfig = 0;
+    break;
+  }
+
+}
+
+void drawFrameConfig(){
+  u8g.drawLine(0, 10, 127, 10);
+}
+
+void drawStringsConfig(){
+  uint8_t t;
+  
+  t = u8g.getStrWidth("CONFIGURAÇÕES");
+  u8g.drawStr((63 - t/2), 10, "CONFIGURAÇÕES");
+  
+  t = u8g.getStrWidth("Vol:");
+  u8g.drawStr((31 - t/2), 25, "Vol.:");
+  
+  t = u8g.getStrWidth("Pres.:");
+  u8g.drawStr((63-t/2), 25, "Pres.:");
+
+  t = u8g.getStrWidth("F. Resp.:");
+  u8g.drawStr((95 - t/2), 25, "F.Resp.:");
+}
+
+
+void confVol(const char *selection){
+  uint8_t t = 0;
+
+  t = u8g.getStrWidth(selection);
+  u8g.drawStr(31 - t/2, 35, selection);
+}
+
+void confPres(const char *selection){
+  uint8_t t = 0;
+
+  t = u8g.getStrWidth(selection);
+  u8g.drawStr(63 - t/2, 35, selection);
+}
+
+void confFr(const char *selection){
+  uint8_t t = 0;
+
+  t = u8g.getStrWidth(selection);
+  u8g.drawStr(95 - t/2, 35, selection);
 }
 
 

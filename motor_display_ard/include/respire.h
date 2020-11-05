@@ -28,6 +28,8 @@ volatile uint8_t stateMotor = 0;
 bool sw=false;
 signed int selection=0;
 
+bool configFlag = true;
+
 
 
 /*--------------------LCD-----------------*/
@@ -36,6 +38,8 @@ signed int selection=0;
 
 
 #define UPDATE_LCD_TIME 40
+
+uint8_t selConfig=0;
 
 
 //Declaracao das variaveis
@@ -90,6 +94,13 @@ void draw(void);
 void measureFunction(void);
 void fcourse(void);
 void serialSend();
+void drawConfig(void);
+void drawFrameConfig(void);
+void drawStringsConfig(void);
+void confVol(const char *selection);
+void confPres(const char *selection);
+void confFr(const char *selection);
+
 
 
 #endif

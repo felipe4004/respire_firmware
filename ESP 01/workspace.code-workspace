@@ -1,0 +1,40 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		},
+		{
+			"name": "websocket_teste",
+			"path": "websocket_teste"
+		},
+		{
+			"name": "mqtt_mosquitto_test",
+			"path": "mqtt_mosquitto_test"
+		},
+		{
+			"name": "hardware_serial_esp01",
+			"path": "hardware_serial_esp01"
+		},
+		{
+			"name": "motor_display_ard",
+			"path": "../motor_display_ard"
+		},
+		{
+			"name": "rotary_encoder_test",
+			"path": "../../../Documents/Respire/rotary_encoder_test"
+		}
+	],
+	"settings": {
+		"cSpell.enabled": true,
+		"files.associations": {
+			"*.tcc": "cpp",
+			"string": "cpp",
+			"fstream": "cpp",
+			"memory": "cpp",
+			"istream": "cpp",
+			"ostream": "cpp",
+			"sstream": "cpp",
+			"streambuf": "cpp"
+		}
+	}
+}
