@@ -24,6 +24,7 @@ void setup(void) {
   attachInterrupt (digitalPinToInterrupt (FCOURSEMIN), fcourse, RISING);
   attachInterrupt (digitalPinToInterrupt (FCOURSEMAX), fcourse, RISING);
 
+
   pinMode (DT, INPUT);
   pinMode (CLK, INPUT);
   pinMode (SW, INPUT);

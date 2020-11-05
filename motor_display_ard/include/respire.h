@@ -25,7 +25,7 @@ volatile uint8_t stateMotor = 0;
 #define CLK 7
 #define SW 5
 
-bool sw=false;
+int sw=1;
 signed int selection=0;
 
 bool configFlag = true;

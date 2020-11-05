@@ -24,6 +24,8 @@ void setup(void) {
   attachInterrupt (digitalPinToInterrupt (FCOURSEMIN), fcourse, RISING);
   attachInterrupt (digitalPinToInterrupt (FCOURSEMAX), fcourse, RISING);
 
+
+  //Pinos para o rotary encoder
   pinMode (DT, INPUT);
   pinMode (CLK, INPUT);
   pinMode (SW, INPUT);
@@ -100,8 +102,12 @@ ISR(TIMER0_COMPA_vect){
   }
   timeCount++;
 
-
-  n = digitalRead(CLK);
+  if(!digitalRead(SW)){
+    sw = 1;
+  }
+  else{
+    sw = 0;
+    n = digitalRead(CLK);
   if ((lastCLK == LOW) && (n == HIGH)) {
     if (digitalRead(DT) == LOW) {
       selection--;
@@ -112,8 +118,8 @@ ISR(TIMER0_COMPA_vect){
     Serial.println ("/");
   }
   lastCLK = n;
-
-
+  }
+  
 }
 
 /* 
