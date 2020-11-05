@@ -102,20 +102,21 @@ ISR(TIMER0_COMPA_vect){
   }
   timeCount++;
 
-  if(!digitalRead(SW)){
+  sw = 0;
+  if(digitalRead(SW)){
     sw = 1;
   }
   else{
     sw = 0;
     n = digitalRead(CLK);
-  if ((lastCLK == LOW) && (n == HIGH)) {
-    if (digitalRead(DT) == LOW) {
+    if ((lastCLK == LOW) && (n == HIGH)) {
+      if (digitalRead(DT) == LOW) {
       selection--;
-    } else {
+    } 
+      else {
       selection++;
-    }
-    Serial.print (selection);
-    Serial.println ("/");
+      }
+
   }
   lastCLK = n;
   }
@@ -274,7 +275,7 @@ void drawConfig(void){
   switch (selConfig)
   {
   case 0:
-    if(SW == 0){
+    if(sw == 1){
       selConfig++;
       selection = 0;
       break;
@@ -285,7 +286,7 @@ void drawConfig(void){
     }
 
   case 1:
-    if(SW == 0){
+    if(sw == 1){
       selConfig++;
       selection = 0;
       break;
@@ -295,7 +296,7 @@ void drawConfig(void){
       break;
     }
   case 2:
-    if(SW == 0){
+    if(sw == 1){
       selConfig++;
       selection = 0;
       configFlag = false;

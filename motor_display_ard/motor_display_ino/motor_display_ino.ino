@@ -25,6 +25,7 @@ void setup(void) {
   attachInterrupt (digitalPinToInterrupt (FCOURSEMAX), fcourse, RISING);
 
 
+  //Pinos para o rotary encoder
   pinMode (DT, INPUT);
   pinMode (CLK, INPUT);
   pinMode (SW, INPUT);
@@ -101,20 +102,25 @@ ISR(TIMER0_COMPA_vect){
   }
   timeCount++;
 
-
-  n = digitalRead(CLK);
-  if ((lastCLK == LOW) && (n == HIGH)) {
-    if (digitalRead(DT) == LOW) {
+  sw = 0;
+  if(digitalRead(SW)){
+    sw = 1;
+  }
+  else{
+    sw = 0;
+    n = digitalRead(CLK);
+    if ((lastCLK == LOW) && (n == HIGH)) {
+      if (digitalRead(DT) == LOW) {
       selection--;
-    } else {
+    } 
+      else {
       selection++;
-    }
-    Serial.print (selection);
-    Serial.println ("/");
+      }
+
   }
   lastCLK = n;
-
-
+  }
+  
 }
 
 /* 
@@ -269,7 +275,7 @@ void drawConfig(void){
   switch (selConfig)
   {
   case 0:
-    if(SW == 0){
+    if(sw == 1){
       selConfig++;
       selection = 0;
       break;
@@ -280,7 +286,7 @@ void drawConfig(void){
     }
 
   case 1:
-    if(SW == 0){
+    if(sw == 1){
       selConfig++;
       selection = 0;
       break;
@@ -290,7 +296,7 @@ void drawConfig(void){
       break;
     }
   case 2:
-    if(SW == 0){
+    if(sw == 1){
       selConfig++;
       selection = 0;
       configFlag = false;
